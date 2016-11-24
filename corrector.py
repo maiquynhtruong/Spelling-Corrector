@@ -19,21 +19,27 @@ def P(word):
 	'''
 	N = sum(WORDS.values())
 	return WORDS[word] / N
-	pass
 
 def correction(word):
 	'''
 	Most probable spelling correction for word.
 	This will be the main function
 	'''
-	pass
+	return max(candidates(word), key = P)
 
 def candidates(word):
 	'''
 	Candidates of spelling corrections to consider. We will check these in the
 	dictionary
+	The error model is the list of words one distance away from the original word is 
+	more probable than words that are two distances away from the original word and less
+	probable than the original word. In order of priority
+	1. Original word, if it is known
+	2. List of known words one edit distance away, if there are any
+	3. List of known words two edit distances away, if there are any
+	4. Original word, even if it is not known
 	'''
-	pass
+	return known([word]) or known([edits1(word)]) or known([edits2(word)]) or [word]
 
 def known(words):
 	'''
@@ -41,7 +47,7 @@ def known(words):
 	Receives the lists of modified words from edits1 and check the words against the 
 	dictionary. Returns the words that exist
 	'''
-	return set([w for w in words if w in WORDS])
+	return set(w for w in words if w in WORDS)
 
 def edits1(word):
 	'''
@@ -59,11 +65,10 @@ def edits2(word):
 	'''
 	Create edits that are 2 steps away from word
 	'''
-	pass
+	return {ver2 for ver1 in edits1(word) for ver2 in edits1(ver1)}
 
 print len(edits1('somthing'))
-#known(edits1('somthing'))
-
-#f.write('To test out corrector.py')
-#print sys.argv
-
+print known(edits1('somthing'))
+print known(edits2('somthing'))
+print 'distinct words:', len(WORDS)
+print 'common words:', WORDS.most_common(15)
