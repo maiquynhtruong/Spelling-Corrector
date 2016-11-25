@@ -9,8 +9,6 @@ fileName = 'dictionary.txt'
 filePath = os.path.join(os.path.dirname(__file__), fileName)
 
 
-testName = 'testfile.txt'
-testPath = os.path.join(os.path.dirname(__file__), testName)
 print testPath
 f = open(testPath, 'w')
 
@@ -23,7 +21,6 @@ class Corrector(object):
 
 	def __init__(self):
 		super(Corrector, self).__init__()
-		# self.selfWORDS = Counter(self.words(open(filePath, 'r').read()))
 		
 	
 	def P(self, word):
@@ -31,8 +28,8 @@ class Corrector(object):
 		Probability that word appears in English text
 		'''
 		N = sum(Corrector.WORDS.values())
-		# N = sum(WORDS.values())
-		# return Corrector.WORDS[word] / N
+		# return Corrector.WORDS[word] / N # This works occasionally. If the number of occurrences of a word is to small, it can cause floating point division precision problem
+
 		return Corrector.WORDS[word]
 
 	def correction(self, word):
@@ -66,7 +63,6 @@ class Corrector(object):
 		dictionary. Returns the words that exist
 		'''
 		return set([w for w in words if w in Corrector.WORDS])
-		# return set(w for w in words if w in WORDS)
 
 	def edits1(self, word):
 		'''
@@ -88,3 +84,5 @@ class Corrector(object):
 		'''
 		return {ver2 for ver1 in self.edits1(word) for ver2 in self.edits1(ver1)}
 
+# To run, create an instance of the class and call the methods.
+# The main method is correction. It will call other methods
