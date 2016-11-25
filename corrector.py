@@ -4,19 +4,26 @@ from collections import Counter
 #Counter is dict subclass for counting
 # Internally represented as a dict with keys as words and values as word occurrences
 
+# fileName = 'dictionary.txt'
 fileName = 'dictionary.txt'
 filePath = os.path.join(os.path.dirname(__file__), fileName)
-print filePath
+
+
+testName = 'testfile.txt'
+testPath = os.path.join(os.path.dirname(__file__), testName)
+print testPath
+f = open(testPath, 'w')
+
 class Corrector(object):
 
 	def words(text):
 		return re.findall(r'\w+', text.lower())
 
-	WORDS = Counter(words(self, open(filePath, 'r').read()))
+	WORDS = Counter(words(open(filePath, 'r').read()))
 
 	def __init__(self):
 		super(Corrector, self).__init__()
-		self.selfWORDS = Counter(self.words(open(filePath, 'r').read()))
+		# self.selfWORDS = Counter(self.words(open(filePath, 'r').read()))
 		
 	
 	def P(self, word):
@@ -25,15 +32,18 @@ class Corrector(object):
 		'''
 		N = sum(Corrector.WORDS.values())
 		# N = sum(WORDS.values())
-		return Corrector.WORDS[word] / N
-		# return WORDS[word] / N
+		# return Corrector.WORDS[word] / N
+		return Corrector.WORDS[word]
 
 	def correction(self, word):
 		'''
 		Most probable spelling correction for word.
 		This will be the main function
 		'''
-		return max(candidates(word), key = P)
+		if self.candidates(word):
+			return max(self.candidates(word), key = self.P)
+		else:
+			return ''
 
 	def candidates(self, word):
 		'''
@@ -47,7 +57,7 @@ class Corrector(object):
 		3. List of known words two edit distances away, if there are any
 		4. Original word, even if it is not known
 		'''
-		return self.known([word]) or self.known([edits1(word)]) or self.known([edits2(word)]) or [word]
+		return self.known([word]) or self.known(self.edits1(word)) or self.known(self.edits2(word)) or [word]
 
 	def known(self, words):
 		'''
@@ -55,7 +65,7 @@ class Corrector(object):
 		Receives the lists of modified words from edits1 and check the words against the 
 		dictionary. Returns the words that exist
 		'''
-		return set(w for w in words if w in Corrector.WORDS)
+		return set([w for w in words if w in Corrector.WORDS])
 		# return set(w for w in words if w in WORDS)
 
 	def edits1(self, word):
@@ -68,7 +78,9 @@ class Corrector(object):
 		transposes = [L + R[1] + R[0] + R[2:] for L, R in splits if len(R) > 1]
 		replaces = [L + w + R[1:] for L, R in splits if R for w in letters]
 		inserts = [ L + w + R for L, R in splits for w in letters]
-		return set(deletes + transposes + replaces + inserts) # Build set from list of lists
+		# Build set from list of lists
+		f.write(str(replaces))
+		return set(deletes + transposes + replaces + inserts)
 
 	def edits2(self, word):
 		'''
@@ -76,9 +88,3 @@ class Corrector(object):
 		'''
 		return {ver2 for ver1 in self.edits1(word) for ver2 in self.edits1(ver1)}
 
-c = Corrector()
-
-# print 'number of the:', c.WORDS['the']
-
-print '15 most common:', c.WORDS.most_common(15)
-print '15 most common from self:', c.selfWORDS.most_common(15)
